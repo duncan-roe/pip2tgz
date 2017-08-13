@@ -1,0 +1,132 @@
+#!/bin/bash -p
+
+# Cloak a pip install as a Slackware build script
+
+# Copyright 2017 Duncan Roe, Melbourne, Australia
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+#  EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+[ -z "$1" ] || PACKAGE=$1
+[ "$PACKAGE" = -h -o "$PACKAGE" = --help ] && HELP=true || HELP=false
+ARCHIVES=${ARCHIVES:-"*.tar.?z* *.zip *.tar"}
+[ -n "$PACKAGE" -o $(ls $ARCHIVES 2>/dev/null | wc -l) -gt 0 ] ||
+  { echo 'No packages to install!'; exit 1; }
+PACKAGE=${PACKAGE:-$(ls -t $ARCHIVES 2>/dev/null | head -n1)}
+
+$HELP ||
+{
+  # If PACKAGE was not originally specified as an absolute path,
+  # now make it into one
+  [ $(echo $PACKAGE | cut -c1) = / ] || PACKAGE=$(pwd)/$PACKAGE
+
+  [ $(echo $PACKAGE | rev | cut -f1 -d.) = piz ] && USE_ZIP=true ||
+    USE_ZIP=false
+  PRGNAM=$(echo $PACKAGE | rev | cut -f1 -d/ | cut -f2- -d- | rev)
+  if $USE_ZIP; then
+    VERSION=$(unzip -l $PACKAGE | head -n 4 | tail -n 1 | awk '{print $4}' |
+      cut -f1 -d/ | rev | cut -f1 -d- | rev)
+  else
+    VERSION=$(tar tf $PACKAGE | head -n1 | rev | cut -f1 -d- | rev |
+      cut -f1 -d/)
+  fi
+}
+BUILD=${BUILD:-1}
+TAG=${TAG:-_SBo}
+PIP=${PIP:-pip2}
+
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) ARCH=i586 ;;
+    arm*) ARCH=arm ;;
+       *) ARCH=$( uname -m ) ;;
+  esac
+fi
+
+TMP=${TMP:-/tmp/SBo}
+PKG=$TMP/package-$PRGNAM
+OUTPUT=${OUTPUT:-/tmp}
+PKGTYPE=${PKGTYPE:-tgz}
+
+! $HELP ||
+{
+  PRG=$(basename $0)
+  echo
+  echo "$PRG generates a Slackware package from a pip-installable package"
+  echo "  usage: <OPTIONS> $PRG [package]"
+  echo "         With no argument, install most recently modified package in CWD"
+  echo "  The resulting package is located under $OUTPUT"
+  echo "  possible OPTIONS are:"
+  echo "    BUILD=<value>   (currently: $BUILD)"
+  echo "    TAG=<value>     (currently: $TAG)"
+  echo "    OUTPUT=<value>  (currently: $OUTPUT)"
+  echo "    ARCH=<value>    (currently: $ARCH)"
+  echo "    PIP=<value>     (currently: $PIP)"
+  echo "    PKGTYPE=<value> (currently: $PKGTYPE)"
+
+  exit
+}
+
+set -e
+
+rm -rf $PKG
+mkdir -p $TMP $PKG $OUTPUT
+$PIP install --root $PKG --no-deps --ignore-installed $PACKAGE
+
+# pip doesn't install documentation, so we have to
+cd $TMP
+rm -rf $PRGNAM-$VERSION
+if $USE_ZIP; then
+  unzip $PACKAGE
+else
+  tar xvf $PACKAGE
+fi
+cd $PRGNAM-$VERSION
+chown -R root:root .
+find -L . \
+ \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
+  -o -perm 511 \) -exec chmod 755 {} \; -o \
+ \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
+  -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
+
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a setup.py $PKG/usr/doc/$PRGNAM-$VERSION
+for i in CHANGES* LICENSE* README* PKG-INFO*; do
+  mv $i $PKG/usr/doc/$PRGNAM-$VERSION 2>/dev/null || true
+done
+for i in examples documentation; do
+  [ ! -d $i ] || mv $i $PKG/usr/doc/$PRGNAM-$VERSION
+done
+
+mkdir -p $PKG/install
+cat > $PKG/install/slack-desc <<////
+$PRGNAM: $PRGNAM (installed by $PIP)
+$PRGNAM:
+$PRGNAM: See /usr/doc/$PRGNAM-$VERSION/*
+$PRGNAM: for more information
+$PRGNAM:
+$PRGNAM:
+$PRGNAM:
+$PRGNAM:
+$PRGNAM:
+$PRGNAM:
+$PRGNAM:
+////
+
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-${BUILD}_$PIP$TAG.$PKGTYPE
