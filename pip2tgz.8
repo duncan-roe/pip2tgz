@@ -1,0 +1,74 @@
+.\"
+.\" pip2tgz manual page.
+.\" Copyright (c) 2017 Duncan Roe
+.\"
+.\" Original author: Duncan Roe
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2, or (at your option)
+.\" any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; see the file COPYING.  If not, write to
+.\" the Free Software Foundation, 59 Temple Place - Suite 330,
+.\" Boston, MA 02111-1307, USA.
+.\"
+.TH pip2tgz 8 "Aug 14 2017" "Slackware Version 14.2" "System Manager's Manual"
+.SH NAME
+pip2tgz \- make Slackware package from pip-installable package archive
+.SH SYNOPSIS
+[\fI\,OPTION\/\fR]...
+.B pip2tgz
+[\fI\,package_archive\/\fR|\f3-h\f1|\f3--help\f1]
+.SH DESCRIPTION
+\f3pip2tgz\f1 makes a Slackware-installable package from \f2package_archive\f1
+which must be a \f4source archive\f1 (i.e. not a wheel).
+If no \f2package_archive\f1 is specified, \f3pip2tgz\f1 uses the
+most recently modified archive file or symlink in the current directory
+(tar, tar,gz, tar.bz2, tar.xz or zip).
+
+Package archives may be fetched from PyPI (the Python Package Index,
+analogous to perl's CPAN).
+PyPI is at \f4https://pypi.python.org/pypi\f1
+
+\f3pip2tgz\f1
+suppresses pip's normal dependency tracking to build an
+install of a single package. To check whether a package has any
+unsatisfied dependencies, first install the newly built package and then
+issue
+
+\f3pipdeptree -p .\f1
+
+This will show all unsatisfied dependencies. If there are none, it just
+outputs a blank line. New unsatisfied dependencies may appear as you
+install more packages. (This works well if you download packages to the
+current working directory: simply re-run \f3pip2tgz\f1 after
+fetching each package, install the new package, and re-run \f3pipdeptree\f1).
+
+PYTHON 3: If you have installed python3 you will have \f3pip3\f1 available.
+To build a python3 Slackware install, put \f3PIP=PIP3\f1 at the front of
+the command line (see \f3OPTIONS\f1 below).
+.SH OPTIONS
+Options are <name=value> pairs placed before the \f3pip2tgz\f1 command.
+For instance, to build the newest \f2package_archive\f1 for Python3, issue
+
+\f3PIP=PIP3 pip2tgz\f1
+
+For a full summary of options, run \f3pip2tgz --help\f1.
+.SH ENVIRONMENT VARIABLES
+Environment variables can be used in place of options (see \f3OPTIONS\f1 above).
+For example, to build a series of packages for Python3, issue
+
+\f3export PIP=pip3\f1
+
+before building any of them.
+.SH AUTHOR
+Written by Duncan Roe
+.RE
+.PP
