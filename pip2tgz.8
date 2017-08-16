@@ -47,9 +47,15 @@ issue
 
 This will show all unsatisfied dependencies. If there are none, it just
 outputs a blank line. New unsatisfied dependencies may appear as you
-install more packages. (This works well if you download packages to the
+install more packages. This works well if you download packages to the
 current working directory: simply re-run \f3pip2tgz\f1 after
-fetching each package, install the new package, and re-run \f3pipdeptree\f1).
+fetching each package, install the new package, and re-run \f3pipdeptree\f1.
+Even better, if you direct the generated packages to be placed in the current
+working directory, you can install / upgrade them using bash's tab completion:
+
+\f3export OUTPUT=$PWD\f1
+
+to enable the above.
 
 PYTHON 3: If you have installed python3 you will have \f3pip3\f1 available.
 To build a python3 Slackware install, put \f3PIP=PIP3\f1 at the front of

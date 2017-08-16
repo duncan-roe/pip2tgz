@@ -88,6 +88,9 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 $PIP install --root $PKG --no-deps --ignore-installed $PACKAGE
 
+# From now on, we want simple name of pip
+PIP=$(basename $PIP)
+
 # pip doesn't install documentation, so we have to
 cd $TMP
 rm -rf $PRGNAM-$VERSION
