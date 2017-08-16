@@ -109,10 +109,10 @@ find -L . \
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -a setup.py $PKG/usr/doc/$PRGNAM-$VERSION
-for i in CHANGES* LICENSE* README* PKG-INFO*; do
+for i in CHANGES* LICENSE* README* PKG-INFO* *.txt *.info; do
   mv $i $PKG/usr/doc/$PRGNAM-$VERSION 2>/dev/null || true
 done
-for i in examples documentation; do
+for i in examples documentation doc docs; do
   [ ! -d $i ] || mv $i $PKG/usr/doc/$PRGNAM-$VERSION
 done
 
