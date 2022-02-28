@@ -2,7 +2,7 @@
 
 # Cloak a pip install as a Slackware build script
 
-# Copyright 2017 Duncan Roe, Melbourne, Australia
+# Copyright 2017,2022 Duncan Roe, Melbourne, Australia
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -48,7 +48,7 @@ $HELP ||
 }
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
-PIP=${PIP:-pip2}
+PIP=${PIP:-pip3}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in

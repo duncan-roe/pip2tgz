@@ -1,6 +1,6 @@
 .\"
 .\" pip2tgz manual page.
-.\" Copyright (c) 2017 Duncan Roe
+.\" Copyright (c) 2017,2022 Duncan Roe
 .\"
 .\" Original author: Duncan Roe
 .\"
@@ -19,7 +19,7 @@
 .\" the Free Software Foundation, 59 Temple Place - Suite 330,
 .\" Boston, MA 02111-1307, USA.
 .\"
-.TH pip2tgz 8 "Aug 14 2017" "Slackware Version 14.2" "System Manager's Manual"
+.TH pip2tgz 8 "Feb 28 2022" "Slackware Version 15.0" "System Manager's Manual"
 .SH NAME
 pip2tgz \- make Slackware package from pip-installable package archive
 .SH SYNOPSIS
@@ -57,21 +57,21 @@ working directory, you can install / upgrade them using bash's tab completion:
 
 to enable the above.
 
-PYTHON 3: If you have installed python3 you will have \f3pip3\f1 available.
-To build a python3 Slackware install, put \f3PIP=PIP3\f1 at the front of
+PYTHON 2: If you have installed python2 you will have \f3pip2\f1 available.
+To build a python2 Slackware install, put \f3PIP=pip2\f1 at the front of
 the command line (see \f3OPTIONS\f1 below).
 .SH OPTIONS
 Options are <name=value> pairs placed before the \f3pip2tgz\f1 command.
-For instance, to build the newest \f2package_archive\f1 for Python3, issue
+For instance, to build the newest \f2package_archive\f1 for Python2, issue
 
-\f3PIP=PIP3 pip2tgz\f1
+\f3PIP=pip2 pip2tgz\f1
 
 For a full summary of options, run \f3pip2tgz --help\f1.
 .SH ENVIRONMENT VARIABLES
 Environment variables can be used in place of options (see \f3OPTIONS\f1 above).
-For example, to build a series of packages for Python3, issue
+For example, to build a series of packages for Python2, issue
 
-\f3export PIP=pip3\f1
+\f3export PIP=pip2\f1
 
 before building any of them.
 .SH AUTHOR
