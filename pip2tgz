@@ -52,7 +52,8 @@ PACKAGE=${PACKAGE:-$(ls -t $ARCHIVES 2>/dev/null | head -n1)}
 {
   PRG=$(basename $0)
   echo
-  echo "$PRG generates a Slackware package from a pip-installable package"
+  echo "$PRG version 0.8"
+  echo "Generate a Slackware package from a pip-installable package"
   echo "  usage: <OPTIONS> $PRG [package...]"
   echo "         With no argument, generate from most recently modified package"
   echo "         in CWD"
@@ -142,7 +143,7 @@ $PRGNAM:
   cd $PKG
   /sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$VERSION-$ARCH-${BUILD}_$PIP$TAG.$PKGTYPE
 
-  [ $# -ne 0 ] || exit
+  [ $# -ne 0 ] || exit 0
   PACKAGE=$1
   shift
   cd $CWD
