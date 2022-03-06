@@ -35,6 +35,7 @@ fi
 TMP=${TMP:-/tmp/SBo}
 OUTPUT=${OUTPUT:-/tmp}
 PKGTYPE=${PKGTYPE:-tgz}
+PKGPFX=${PKGPFX:-""}
 CWD=$(pwd)
 
 [ -z "$1" ] || { PACKAGE=$1; shift; }
@@ -63,6 +64,7 @@ PACKAGE=${PACKAGE:-$(ls -t $ARCHIVES 2>/dev/null | head -n1)}
   echo "    ARCH=<value>    (currently: $ARCH)"
   echo "    PIP=<value>     (currently: $PIP)"
   echo "    PKGTYPE=<value> (currently: $PKGTYPE)"
+  echo "    PKGPFX=<value>  (currently: $PKGPFX)"
 
   exit
 }
@@ -83,14 +85,16 @@ do
     VERSION=$(tar tf $PACKAGE | head -n1 | rev | cut -f1 -d- | rev |
       cut -f1 -d/)
   fi
+  PKGNAM=$PKGPFX$PRGNAM
 
-  PKG=$TMP/package-$PRGNAM
+  PKG=$TMP/package-$PKGNAM
 
   set -e
 
   rm -rf $PKG
   mkdir -p $TMP $PKG $OUTPUT
-  $PIP install --root $PKG --no-deps --ignore-installed $PACKAGE
+  $PIP install --root $PKG --no-deps --ignore-installed  \
+    --no-warn-script-location $PACKAGE
 
   # From now on, we want simple name of pip
   PIP=$(basename $PIP)
@@ -111,24 +115,24 @@ do
    \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
     -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-  mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-  cp -a setup.py $PKG/usr/doc/$PRGNAM-$VERSION
+  mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
+  cp -a setup.py $PKG/usr/doc/$PKGNAM-$VERSION
   for i in CHANGES* LICENSE* README* PKG-INFO* *.txt *.info; do
-    mv $i $PKG/usr/doc/$PRGNAM-$VERSION 2>/dev/null || true
+    mv $i $PKG/usr/doc/$PKGNAM-$VERSION 2>/dev/null || true
   done
   for i in examples documentation doc docs; do
-    [ ! -d $i ] || mv $i $PKG/usr/doc/$PRGNAM-$VERSION
+    [ ! -d $i ] || mv $i $PKG/usr/doc/$PKGNAM-$VERSION
   done
 
   mkdir -p $PKG/install
   cat > $PKG/install/slack-desc <<////
-$PRGNAM: $PRGNAM (installed by $PIP)
-$PRGNAM:
-$PRGNAM: See /usr/doc/$PRGNAM-$VERSION/*
-$PRGNAM: for more information
-$PRGNAM:
-$PRGNAM:
-$PRGNAM:
+$PKGNAM: $PKGNAM (installed by $PIP)
+$PKGNAM:
+$PKGNAM: See /usr/doc/$PKGNAM-$VERSION/*
+$PKGNAM: for more information
+$PKGNAM:
+$PKGNAM:
+$PKGNAM:
 $PRGNAM:
 $PRGNAM:
 $PRGNAM:
@@ -136,10 +140,11 @@ $PRGNAM:
 ////
 
   cd $PKG
-  /sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-${BUILD}_$PIP$TAG.$PKGTYPE
+  /sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$VERSION-$ARCH-${BUILD}_$PIP$TAG.$PKGTYPE
 
   [ $# -ne 0 ] || exit
   PACKAGE=$1
   shift
   cd $CWD
+  set +e
 done
