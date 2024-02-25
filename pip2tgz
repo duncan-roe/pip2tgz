@@ -83,8 +83,8 @@ do
     VERSION=$(unzip -l $PACKAGE | head -n 4 | tail -n 1 | awk '{print $4}' |
       cut -f1 -d/ | rev | cut -f1 -d- | rev)
   else
-    VERSION=$(tar tf $PACKAGE | head -n1 | rev | cut -f1 -d- | rev |
-      cut -f1 -d/)
+    VERSION=$(tar tf $PACKAGE | head -n1 | cut -f1 -d/ | rev | cut -f1 -d- |
+      rev)
   fi
   PKGNAM=$PKGPFX$PRGNAM
 
@@ -117,7 +117,7 @@ do
     -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
   mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
-  cp -a setup.py $PKG/usr/doc/$PKGNAM-$VERSION
+  cp -a setup.* $PKG/usr/doc/$PKGNAM-$VERSION || :
   for i in CHANGES* LICENSE* README* PKG-INFO* *.txt *.info; do
     mv $i $PKG/usr/doc/$PKGNAM-$VERSION 2>/dev/null || true
   done
